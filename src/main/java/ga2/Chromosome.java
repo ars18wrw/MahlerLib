@@ -28,24 +28,29 @@ public class Chromosome {
     }
 
     public static Chromosome crossover(Chromosome parent1, Chromosome parent2) {
+        boolean isFirstParent = random.nextBoolean();
+
         Iterator<MeasureRepresentation> iterator1 = parent1.getMeasures().iterator();
         Iterator<MeasureRepresentation> iterator2 = parent2.getMeasures().iterator();
 
         ArrayList<MeasureRepresentation> childChromosome = new ArrayList<>();
-        int crossoverPoint = random.nextInt(parent1.getMeasures().size());
-
-        MeasureRepresentation measure1;
-        MeasureRepresentation measure2;
+        int crossoverPoint;
         int i = 0;
-        boolean isFirstParent = random.nextBoolean();
-        while (iterator1.hasNext() && iterator2.hasNext()) {
-            measure1 = iterator1.next();
-            measure2 = iterator2.next();
-            childChromosome.add(isFirstParent ? measure1 : measure2);
-            if (++i >= crossoverPoint) {
-                isFirstParent = !isFirstParent;
+
+        do {
+            crossoverPoint = random.nextInt(parent1.getMeasures().size() - i);
+
+            MeasureRepresentation measure1;
+            MeasureRepresentation measure2;
+            for (int j = i; j <= i+crossoverPoint; j++) {
+                measure1 = iterator1.next();
+                measure2 = iterator2.next();
+                childChromosome.add(isFirstParent ? measure1 : measure2);
             }
-        }
+            i += crossoverPoint+1;
+            isFirstParent = !isFirstParent;
+        } while (i != parent1.getMeasures().size());
+
         return new Chromosome(childChromosome);
     }
 

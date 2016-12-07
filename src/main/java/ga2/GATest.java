@@ -16,16 +16,29 @@ import java.util.*;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class GATest {
-    public static final int POPULATION_SIZE = 200;
-    public static final int NUMBER_OF_RUNS = 2000;
-    public static final int MUTATION_NUMBER = 40;
+    public static final int POPULATION_SIZE = 50;
+    public static final int NUMBER_OF_RUNS = 20000;
+    public static final double MUTATION_PERCENT = 0.2;
+    public static final double CROSSOVER_PERCENT = 0.5;
 
     public static final int FITNESS_WEIGHT_FIRST = 1;
     public static final int FITNESS_WEIGHT_SECOND = 1;
 
-    protected Set<Chromosome> population;
+    protected Set<Chromosome> population = new TreeSet<Chromosome>(new Comparator<Chromosome>() {
+        @Override
+        public int compare(Chromosome o1, Chromosome o2) {
+            Pair<Integer, Integer> firstFitness = o1.getFitness();
+            Pair<Integer, Integer> secondFitness = o2.getFitness();
+            int result = Integer.compare(FITNESS_WEIGHT_FIRST * firstFitness.getKey() /*+ FITNESS_WEIGHT_SECOND*firstFitness.getValue()*/,
+                    FITNESS_WEIGHT_FIRST * secondFitness.getKey() /*+ FITNESS_WEIGHT_SECOND*secondFitness.getValue()*/);
+            if (0 == result) {
+                result = o1.hashCode() - o2.hashCode();
+            }
+            return -result;
+        }
+    });
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new GATest().process();
     }
 
@@ -38,53 +51,52 @@ public class GATest {
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
             operateMutation();
             operateCrossover();
-            System.out.println(i + ": " + population.iterator().next().fitnesses);
+            initNextGeneration();
+            System.out.println(i + ": best:" + ((Chromosome) population.toArray()[0]).fitnesses + ", worst: " + ((Chromosome) population.toArray()[49]).fitnesses);
         }
         Chromosome best = population.iterator().next();
         Part accompaniment = processChromosome(Pitches.C4, best);
         score.add(accompaniment);
         Write.midi(score, "tutti.mid");
         System.out.println(best.toString());
-        //while(true);
     }
 
 
     public void operateCrossover() {
         Object[] oldPopulation = population.toArray();
-        for (int i = 0; i < POPULATION_SIZE; i++) {
+        for (int i = 0; i < POPULATION_SIZE * CROSSOVER_PERCENT; i++) {
             population.add(Chromosome.crossover((Chromosome) oldPopulation[(int) (oldPopulation.length * Math.random())], (Chromosome) oldPopulation[(int) (oldPopulation.length * Math.random())]));
         }
-        Iterator<Chromosome> iter = population.iterator();
-        List<Chromosome> list = new ArrayList<>();
-        int i = 0;
-        while (iter.hasNext() && i < POPULATION_SIZE) {
-            i++;
-            list.add(iter.next());
-        }
-        initNextGeneration(list);
     }
 
     public void operateMutation() {
         Object[] oldPopulation = population.toArray();
-        for (int i = 0; i < MUTATION_NUMBER; i++) {
-            ((Chromosome)oldPopulation[(int)(oldPopulation.length*Math.random())]).mutation();
+        for (int i = 0; i < POPULATION_SIZE * MUTATION_PERCENT; i++) {
+            Chromosome chromosome = ((Chromosome) oldPopulation[(int) (oldPopulation.length * Math.random())]);
+            chromosome.mutation();
         }
     }
 
-    public void initNextGeneration(List<Chromosome> list) {
-        population = new TreeSet<Chromosome>(new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome o1, Chromosome o2) {
-                Pair<Integer, Integer> firstFitness = o1.getFitness();
-                Pair<Integer, Integer> secondFitness = o2.getFitness();
-                int result = Integer.compare(FITNESS_WEIGHT_FIRST*firstFitness.getKey() /*+ FITNESS_WEIGHT_SECOND*firstFitness.getValue()*/,
-                        FITNESS_WEIGHT_FIRST*secondFitness.getKey() /*+ FITNESS_WEIGHT_SECOND*secondFitness.getValue()*/);
-                if (0 == result) {
-                    result = o1.hashCode() - o2.hashCode();
-                }
-                return -result;
+    // roulette. The best takes size probability, the second - size-1, ..., the worst - 1
+    public void initNextGeneration() {
+        Iterator<Chromosome> iter;
+        List<Chromosome> list = new ArrayList<>();
+        Chromosome choosen = null;
+        int rand;
+        int index;
+        for (int i = 0; i < POPULATION_SIZE; i++) {
+            iter = population.iterator();
+            rand = (int) (Math.random() * (population.size() - 1) * population.size() / 2.);
+            index = 0;
+            while (rand >= 0) {
+                rand -= population.size() - index;
+                choosen = iter.next();
             }
-        });
+            iter.remove();
+            list.add(choosen);
+        }
+
+        population.clear();
 
         for (Chromosome c : list) {
             population.add(c);
@@ -126,7 +138,7 @@ public class GATest {
         int size = 0;
         Phrase[] phraseArray = part.getPhraseArray();
         for (int i = 0; i < phraseArray.length; i++) {
-            size+=phraseArray[i].size();
+            size += phraseArray[i].size();
         }
         int[][] frequences = new int[size][7];
         Note[] noteArray;
@@ -134,7 +146,7 @@ public class GATest {
         for (int i = 0; i < phraseArray.length; i++) {
             noteArray = phraseArray[i].getNoteArray();
             for (int j = 0; j < noteArray.length; j++) {
-                int index = Arrays.binarySearch(scale, noteArray[j].getPitch()%12);
+                int index = Arrays.binarySearch(scale, noteArray[j].getPitch() % 12);
                 if (-1 != index) {
                     frequences[indexPart][index]++;
                 }
@@ -152,7 +164,7 @@ public class GATest {
         for (MeasureRepresentation measure : chromosome.measures) {
             chord = measure.getMeasure().clone();
             for (int j = 0; j < chord.length; j++) {
-                chord[j]+=tonic;
+                chord[j] += tonic;
             }
             phrase.addChord(chord, Durations.QUARTER_NOTE);
         }
@@ -163,8 +175,7 @@ public class GATest {
     public void initPopulation(int[][] frequences) {
         List<Chromosome> list = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            list.add(new Chromosome(frequences));
+            population.add(new Chromosome(frequences));
         }
-        initNextGeneration(list);
     }
 }
