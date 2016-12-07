@@ -1,10 +1,15 @@
 package ga2;
 
+import javafx.util.Pair;
+import jm.constants.Durations;
+import jm.constants.Pitches;
+import jm.constants.Scales;
+import jm.music.data.Note;
+import jm.music.data.Part;
+import jm.music.data.Phrase;
 import jm.music.data.Score;
 import jm.util.Write;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -12,11 +17,12 @@ import java.util.*;
  */
 public class GATest {
     public static final int POPULATION_SIZE = 100;
-    public static final int NUMBER_OF_RUNS = 100;
+    public static final int NUMBER_OF_RUNS = 300;
     public static final int MUTATIONS_MAX_NUMBER = 20;
 
+    public static final int FITNESS_WEIGHT_FIRST = 3;
+    public static final int FITNESS_WEIGHT_SECOND = 1;
 
-    protected Chromosome chromosome;
     protected Set<Chromosome> population;
 
     public static void main(String[] args){
@@ -25,43 +31,22 @@ public class GATest {
 
     public void process() {
         Score score = new Score();
-        initChromosome();
-        score.add(MusicTranslator.getScoreByText(chromosome));
-        initPopulation();
+        Part part = initPart();
+        score.add(part);
+        int[][] frequences = processPart(Scales.MAJOR_SCALE, part);
+        initPopulation(frequences);
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
             operateCrossover();
             operateMutation();
+            System.out.println(i);
         }
         Chromosome best = population.iterator().next();
-        score.add(MusicTranslator.getScoreByText(best));
+        Part accompaniment = processChromosome(Pitches.C4, best);
+        score.add(accompaniment);
         Write.midi(score, "tutti.mid");
         System.out.println(best.toString());
     }
 
-    public void initChromosome() {
-        File file = new File("./src/main/resources/ga_patterns/god_save_the_queen.txt");
-        int[] melody = new int[12];
-
-        List<MeasureRepresentation> list = new ArrayList<>();
-        try {
-            Scanner sc = new Scanner(file);
-            int i = 0;
-            while (sc.hasNextLine()) {
-                melody[i++] = sc.nextInt();
-                if (i == 12) {
-                    list.add(new MeasureRepresentation(melody.clone()));
-                    Arrays.fill(melody, 0);
-                    i = 0;
-                }
-            }
-            sc.close();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        chromosome = new Chromosome(list);
-
-    }
 
     public void operateCrossover() {
         Object[] oldPopulation = population.toArray();
@@ -75,7 +60,7 @@ public class GATest {
             i++;
             list.add(iter.next());
         }
-        initPopulation(list);
+        initNextGeneration(list);
     }
 
     public void operateMutation() {
@@ -86,11 +71,14 @@ public class GATest {
         }
     }
 
-    public void initPopulation(List<Chromosome> list) {
+    public void initNextGeneration(List<Chromosome> list) {
         population = new TreeSet<Chromosome>(new Comparator<Chromosome>() {
             @Override
             public int compare(Chromosome o1, Chromosome o2) {
-                int result = Integer.compare(o1.getFitness(chromosome), o2.getFitness(chromosome));
+                Pair<Integer, Integer> firstFitness = o1.getFitness();
+                Pair<Integer, Integer> secondFitness = o2.getFitness();
+                int result = Integer.compare(FITNESS_WEIGHT_FIRST*firstFitness.getKey() + FITNESS_WEIGHT_SECOND*firstFitness.getValue(),
+                        FITNESS_WEIGHT_FIRST*secondFitness.getKey() + FITNESS_WEIGHT_SECOND*secondFitness.getValue());
                 if (0 == result) {
                     result = o1.hashCode() - o2.hashCode();
                 }
@@ -103,12 +91,80 @@ public class GATest {
         }
     }
 
+    public Part initPart() {
+        Part part = new Part();
+        Phrase phrase = new Phrase();
 
-    public void initPopulation() {
+        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
+
+        phrase.add(new Note(Pitches.B3, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
+
+        phrase.add(new Note(Pitches.E4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.E4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.F4, Durations.QUARTER_NOTE));
+
+        phrase.add(new Note(Pitches.E4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+
+        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.B3, Durations.QUARTER_NOTE));
+
+        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+
+        part.add(phrase);
+
+        return part;
+    }
+
+    public int[][] processPart(int[] scale, Part part) {
+        int size = 0;
+        Phrase[] phraseArray = part.getPhraseArray();
+        for (int i = 0; i < phraseArray.length; i++) {
+            size+=phraseArray[i].size();
+        }
+        int[][] frequences = new int[size][7];
+        Note[] noteArray;
+        int indexPart = 0;
+        for (int i = 0; i < phraseArray.length; i++) {
+            noteArray = phraseArray[i].getNoteArray();
+            for (int j = 0; j < noteArray.length; j++) {
+                int index = Arrays.binarySearch(scale, noteArray[j].getPitch()%12);
+                if (-1 != index) {
+                    frequences[indexPart][index]++;
+                }
+                indexPart++;
+            }
+        }
+        return frequences;
+    }
+
+    public Part processChromosome(int tonic, Chromosome chromosome) {
+        Part part = new Part();
+        Phrase phrase = new Phrase();
+        // TODO durations of accompaniment
+        int[] chord;
+        for (MeasureRepresentation measure : chromosome.measures) {
+            chord = measure.getMeasure().clone();
+            for (int j = 0; j < chord.length; j++) {
+                chord[j]+=tonic;
+            }
+            phrase.addChord(chord, Durations.QUARTER_NOTE);
+        }
+        part.add(phrase);
+        return part;
+    }
+
+    public void initPopulation(int[][] frequences) {
         List<Chromosome> list = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            list.add(new Chromosome(5));
+            list.add(new Chromosome(frequences));
         }
-        initPopulation(list);
+        initNextGeneration(list);
     }
 }

@@ -1,9 +1,8 @@
 package ga2;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import javafx.util.Pair;
+
+import java.util.*;
 
 /**
  * Created by Уладзімір Асіпчук on 20/11/2016.
@@ -11,19 +10,17 @@ import java.util.Random;
 public class Chromosome {
     protected List<MeasureRepresentation> measures;
     private static Random random = new Random();
-    private static List<int[]> freqList;
 
     // copy constructor
     public Chromosome(List<MeasureRepresentation> measures) {
         this.measures = measures;
-        if (null == freqList || null == measures || freqList.size() != measures.size()) {
-            throw new RuntimeException();
-        }
     }
 
-    // IMPORTANT to set
-    public void setFreqList(List<int[]> freqList) {
-        this.freqList = freqList;
+    public Chromosome(int[][] frequences) {
+        measures = new ArrayList<>();
+        for (int i = 0; i < frequences.length; i++) {
+            measures.add(new MeasureRepresentation(frequences[i]));
+        }
     }
 
     public static Chromosome crossover(Chromosome parent1, Chromosome parent2) {
@@ -63,20 +60,28 @@ public class Chromosome {
         }
     }
 
-    public int getFitness() {
-        int fitness = 0;MeasureRepresentation previousMeasure = null;
+    public Pair<Integer, Integer> getFitness() {
+        int fitness1 = 0;
+        int fitness2 = 0;
+        Pair<Integer, Integer> fitness ;
+
+        MeasureRepresentation previousMeasure = null;
         for (MeasureRepresentation measure : measures) {
             if (null != previousMeasure) {
-                fitness += previousMeasure.getFitness(measure);
+                fitness = previousMeasure.getFitness(measure);
             } else {
-                fitness += measure.getFitness(null);
+                fitness = measure.getFitness(null);
             }
+            fitness1 += fitness.getKey();
+            fitness2 += fitness.getValue();
             previousMeasure = measure;
         }
         if (null != previousMeasure) {
-            fitness += previousMeasure.getFitness(null);
+            fitness = previousMeasure.getFitness(null);
+            fitness1 += fitness.getKey();
+            fitness2 += fitness.getValue();
         }
-        return fitness;
+        return new Pair<Integer, Integer>(fitness1, fitness2);
     }
 
 
