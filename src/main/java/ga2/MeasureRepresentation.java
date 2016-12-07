@@ -102,10 +102,14 @@ public class MeasureRepresentation {
     }
 
     public void mutation(MeasureRepresentation nextMeasure) {
-        if (random.nextFloat() < ITEM_MUTATION_PROBABILITY) {
+        float rand = random.nextFloat();
+        if (rand < PITCH_MUTATION_PROBABILITY) {
             mutatePitch(PITCH_MUTATION_PROBABILITY);
+        } else if (rand < PITCH_MUTATION_PROBABILITY + INVERSE_PROBABILITY) {
             inverse(INVERSE_PROBABILITY);
+        } else if (rand < PITCH_MUTATION_PROBABILITY + INVERSE_PROBABILITY + REINITIALISE_MEASURE_PROBABILITY) {
             reinitialiseMeasure(REINITIALISE_MEASURE_PROBABILITY);
+        } else {
             copy(COPY_PROBABILITY, nextMeasure);
         }
     }

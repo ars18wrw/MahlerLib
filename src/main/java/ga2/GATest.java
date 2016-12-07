@@ -16,9 +16,9 @@ import java.util.*;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class GATest {
-    public static final int POPULATION_SIZE = 500;
+    public static final int POPULATION_SIZE = 200;
     public static final int NUMBER_OF_RUNS = 2000;
-    public static final int MUTATIONS_MAX_NUMBER = 100;
+    public static final int MUTATION_NUMBER = 40;
 
     public static final int FITNESS_WEIGHT_FIRST = 1;
     public static final int FITNESS_WEIGHT_SECOND = 1;
@@ -66,8 +66,7 @@ public class GATest {
 
     public void operateMutation() {
         Object[] oldPopulation = population.toArray();
-        int numberOfMutations = (int) (MUTATIONS_MAX_NUMBER*Math.random());
-        for (int i = 0; i < numberOfMutations; i++) {
+        for (int i = 0; i < MUTATION_NUMBER; i++) {
             ((Chromosome)oldPopulation[(int)(oldPopulation.length*Math.random())]).mutation();
         }
     }
