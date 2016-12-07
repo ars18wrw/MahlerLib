@@ -10,11 +10,6 @@ import java.util.Random;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class MeasureRepresentation {
-    public static final int[] MAJOR_TRIAD = {4, 7};
-    public static final int[] MAJOR_INVERSION_FIRST = {4, 7};
-    public static final int[] MAJOR_INVERSION_SECOND = {4, 7};
-
-
     public static final float ITEM_MUTATION_PROBABILITY = 0.2f;
     public static final float PITCH_MUTATION_PROBABILITY = 0.3f;
     public static final float REINITIALISE_MEASURE_PROBABILITY = 0.15f;
@@ -41,17 +36,24 @@ public class MeasureRepresentation {
     public static final int TONIC_FIRST_FINE1 = 10;
     public static final int TONIC_FIRST_FINE2 = 3;
 
-    public static final int TRIAD_ABSENCE_FINE1 = -80;
-    public static final int TRIAD_ABSENCE_FINE2 = -80;
+    public static final int TRIAD_ABSENCE_FINE1 = -40;
+    public static final int TRIAD_ABSENCE_FINE2 = -40;
 
-    public static final int FIFTH_ABSENCE_FINE1 = -45;
-    public static final int FIFTH_ABSENCE_FINE2 = -35;
+    public static final int FIFTH_ABSENCE_FINE1 = -15;
+    public static final int FIFTH_ABSENCE_FINE2 = -5;
 
     public static final int DISSONANCE_FINE1 = -10;
     public static final int DISSONANCE_FINE2 = 10;
 
     public static final int SEMITONE_DISSONANCE_FINE1 = -20;
     public static final int SEMITONE_DISSONANCE_FINE2 = -20;
+
+    public static final int NO_MEASURE_PITCHES_FINE1 = -80;
+    public static final int NO_MEASURE_PITCHES_FINE2 = -80;
+
+    public static final int UNISONS_FINE1 = -5;
+    public static final int UNISONS_FINE2 = -5;
+
 
 
 
@@ -239,6 +241,30 @@ public class MeasureRepresentation {
 
         }
         return (hasThird ? HAS_THIRD : NO_THIRD);
+    }
+
+    public int getUnisonsCount(int[] chord) {
+        int count = 0;
+        for (int i = 0; i < chord.length-1; i++) {
+            if (chord[i] == chord[i+1]) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean hasMeasurePitches(int[] chord) {
+        boolean hasMeasurePitches = false;
+        int pitch;
+        int index;
+        for (int i = 0; i < chord.length; i++) {
+            pitch = chord[i];
+            index = Arrays.binarySearch(scale, pitch);
+            if (index >= 0 && frequences[index] > 0) {
+                hasMeasurePitches = true;
+            }
+        }
+        return hasMeasurePitches;
     }
 
     public int getInvalidPitchesCount(int[] chord) {

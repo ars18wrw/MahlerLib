@@ -16,8 +16,8 @@ import java.util.*;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class GATest {
-    public static final int POPULATION_SIZE = 100;
-    public static final int NUMBER_OF_RUNS = 300;
+    public static final int POPULATION_SIZE = 1000;
+    public static final int NUMBER_OF_RUNS = 1000;
     public static final int MUTATIONS_MAX_NUMBER = 20;
 
     public static final int FITNESS_WEIGHT_FIRST = 3;
