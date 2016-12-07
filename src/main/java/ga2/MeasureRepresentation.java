@@ -10,10 +10,9 @@ import java.util.Random;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class MeasureRepresentation {
-    public static final float ITEM_MUTATION_PROBABILITY = 0.2f;
     public static final float PITCH_MUTATION_PROBABILITY = 0.3f;
-    public static final float REINITIALISE_MEASURE_PROBABILITY = 0.15f;
-    public static final float COPY_PROBABILITY = 0.05f;
+    public static final float REINITIALISE_MEASURE_PROBABILITY = 0.5f;
+    public static final float COPY_PROBABILITY = 0.15f;
     public static final float INVERSE_PROBABILITY = 0.5f;
 
     // third status
@@ -37,20 +36,20 @@ public class MeasureRepresentation {
     public static final int TONIC_FIRST_FINE1 = 10;
     public static final int TONIC_FIRST_FINE2 = 3;
 
-    public static final int TRIAD_ABSENCE_FINE1 = -40;
-    public static final int TRIAD_ABSENCE_FINE2 = -40;
+    public static final int TRIAD_ABSENCE_FINE1 = -50;
+    public static final int TRIAD_ABSENCE_FINE2 = -50;
 
-    public static final int FIFTH_ABSENCE_FINE1 = 15;
-    public static final int FIFTH_ABSENCE_FINE2 = -5;
+    public static final int FIFTH_ABSENCE_FINE1 = -25;
+    public static final int FIFTH_ABSENCE_FINE2 = -15;
 
-    public static final int DISSONANCE_FINE1 = -10;
-    public static final int DISSONANCE_FINE2 = 10;
+    public static final int DISSONANCE_FINE1 = -20;
+    public static final int DISSONANCE_FINE2 = 20;
 
     public static final int SEMITONE_DISSONANCE_FINE1 = -30;
     public static final int SEMITONE_DISSONANCE_FINE2 = -30;
 
-    public static final int NO_MEASURE_PITCHES_FINE1 = -50;
-    public static final int NO_MEASURE_PITCHES_FINE2 = -50;
+    public static final int NO_MEASURE_PITCHES_FINE1 = -40;
+    public static final int NO_MEASURE_PITCHES_FINE2 = -40;
 
     public static final int UNISONS_FINE1 = -10;
     public static final int UNISONS_FINE2 = -10;

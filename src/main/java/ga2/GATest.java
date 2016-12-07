@@ -17,11 +17,11 @@ import java.util.*;
  */
 public class GATest {
     public static final int POPULATION_SIZE = 100;
-    public static final int NUMBER_OF_RUNS = 200;
+    public static final int NUMBER_OF_RUNS = 500;
     public static final int CATACLYSM_TIME = 25;
     public static final double MUTATION_PERCENT = 0.2;
     public static final double CROSSOVER_PERCENT = 0.5;
-    public static final double SURVIVED_PERCENT = 0.5;
+    public static final double SURVIVED_PERCENT = 0.3;
 
 
     public static final int FITNESS_WEIGHT_FIRST = 1;
