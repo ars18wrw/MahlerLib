@@ -17,7 +17,14 @@ public class Chromosome {
 
     // copy constructor
     public Chromosome(List<MeasureRepresentation> measures) {
-        this.measures = measures;
+        this.measures = new ArrayList<>();
+        for (MeasureRepresentation measure : measures) {
+            try {
+                this.measures.add((MeasureRepresentation) measure.clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public Chromosome(int[][] frequences) {

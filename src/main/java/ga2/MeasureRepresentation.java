@@ -9,7 +9,7 @@ import java.util.Random;
 /**
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
-public class MeasureRepresentation {
+public class MeasureRepresentation implements Cloneable {
     public static final float PITCH_MUTATION_PROBABILITY = 0.3f;
     public static final float REINITIALISE_MEASURE_PROBABILITY = 0.5f;
     public static final float COPY_PROBABILITY = 0.15f;
@@ -61,6 +61,24 @@ public class MeasureRepresentation {
 
     protected Pair<Integer, Integer> fitnesses;
     private static Random random = new Random();
+
+    public MeasureRepresentation(int[] scale, int[] frequences, int[] measure) {
+        // measure
+        this.measure = new int[measure.length];
+        for (int i = 0; i < 3; i++) {
+            this.measure[i] = measure[i];
+        }
+
+        // scale
+        this.scale = scale;
+
+        // frequences
+        this.frequences = new int[7];
+        for (int i = 0; i < scale.length; i++) {
+            this.frequences[i] = frequences[i];
+        }
+    }
+
 
     public MeasureRepresentation(int[] scale, int[] frequences) {
         // measure
@@ -349,5 +367,10 @@ public class MeasureRepresentation {
             }
         }
         return pitch;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new MeasureRepresentation(scale, frequences, measure);
     }
 }

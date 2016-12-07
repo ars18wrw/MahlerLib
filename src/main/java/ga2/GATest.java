@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class GATest {
     public static final int POPULATION_SIZE = 100;
-    public static final int NUMBER_OF_RUNS = 500;
+    public static final int NUMBER_OF_RUNS = 1000;
     public static final int CATACLYSM_TIME = 25;
     public static final double MUTATION_PERCENT = 0.2;
     public static final double CROSSOVER_PERCENT = 0.5;
@@ -50,6 +50,7 @@ public class GATest {
         Part part = initPart();
         score.add(part);
         int[][] frequences = processPart(Scales.MAJOR_SCALE, part);
+        Chromosome best = null;
         initPopulation(frequences);
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
             if (0 == i % CATACLYSM_TIME) {
@@ -58,13 +59,17 @@ public class GATest {
             operateMutation();
             operateCrossover();
             initNextGeneration();
+            if (null == best || best.getFitness().getKey() < ((Chromosome) population.toArray()[0]).fitnesses.getKey()) {
+                best = new Chromosome(((Chromosome) population.toArray()[0]).measures);
+                best.updateFitness();
+            }
             System.out.println(i + ": best:" + ((Chromosome) population.toArray()[0]).fitnesses + ", worst: " + ((Chromosome) population.toArray()[49]).fitnesses);
         }
-        Chromosome best = population.iterator().next();
+//        Chromosome best = population.iterator().next();
         Part accompaniment = processChromosome(Pitches.C4, best);
         score.add(accompaniment);
         Write.midi(score, "tutti.mid");
-        System.out.println(best.toString());
+        System.out.println(best.getFitness() + " : " + best.toString());
     }
 
 
