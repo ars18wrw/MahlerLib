@@ -16,11 +16,11 @@ import java.util.*;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class GATest {
-    public static final int POPULATION_SIZE = 1000;
-    public static final int NUMBER_OF_RUNS = 1000;
-    public static final int MUTATIONS_MAX_NUMBER = 20;
+    public static final int POPULATION_SIZE = 500;
+    public static final int NUMBER_OF_RUNS = 2000;
+    public static final int MUTATIONS_MAX_NUMBER = 100;
 
-    public static final int FITNESS_WEIGHT_FIRST = 3;
+    public static final int FITNESS_WEIGHT_FIRST = 1;
     public static final int FITNESS_WEIGHT_SECOND = 1;
 
     protected Set<Chromosome> population;
@@ -36,15 +36,16 @@ public class GATest {
         int[][] frequences = processPart(Scales.MAJOR_SCALE, part);
         initPopulation(frequences);
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-            operateCrossover();
             operateMutation();
-            System.out.println(i);
+            operateCrossover();
+            System.out.println(i + ": " + population.iterator().next().fitnesses);
         }
         Chromosome best = population.iterator().next();
         Part accompaniment = processChromosome(Pitches.C4, best);
         score.add(accompaniment);
         Write.midi(score, "tutti.mid");
         System.out.println(best.toString());
+        //while(true);
     }
 
 
@@ -77,8 +78,8 @@ public class GATest {
             public int compare(Chromosome o1, Chromosome o2) {
                 Pair<Integer, Integer> firstFitness = o1.getFitness();
                 Pair<Integer, Integer> secondFitness = o2.getFitness();
-                int result = Integer.compare(FITNESS_WEIGHT_FIRST*firstFitness.getKey() + FITNESS_WEIGHT_SECOND*firstFitness.getValue(),
-                        FITNESS_WEIGHT_FIRST*secondFitness.getKey() + FITNESS_WEIGHT_SECOND*secondFitness.getValue());
+                int result = Integer.compare(FITNESS_WEIGHT_FIRST*firstFitness.getKey() /*+ FITNESS_WEIGHT_SECOND*firstFitness.getValue()*/,
+                        FITNESS_WEIGHT_FIRST*secondFitness.getKey() /*+ FITNESS_WEIGHT_SECOND*secondFitness.getValue()*/);
                 if (0 == result) {
                     result = o1.hashCode() - o2.hashCode();
                 }
@@ -95,27 +96,27 @@ public class GATest {
         Part part = new Part();
         Phrase phrase = new Phrase();
 
-        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
 
-        phrase.add(new Note(Pitches.B3, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
 
-        phrase.add(new Note(Pitches.E4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.E4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.F4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
 
-        phrase.add(new Note(Pitches.E4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
 
-        phrase.add(new Note(Pitches.D4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.B3, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
 
-        phrase.add(new Note(Pitches.C4, Durations.QUARTER_NOTE));
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
 
         part.add(phrase);
 

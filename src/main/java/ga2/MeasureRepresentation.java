@@ -30,6 +30,7 @@ public class MeasureRepresentation {
     public static final int MANY_SEMITONE_DISSONANCE_WITH_ONE_LEADING = 2003;
     public static final int FEW_SEMITONE_DISSONANCE = 2004;
 
+
     public static final int INVALID_PITCH_FINE1 = -30;
     public static final int INVALID_PITCH_FINE2 = -30;
 
@@ -39,29 +40,27 @@ public class MeasureRepresentation {
     public static final int TRIAD_ABSENCE_FINE1 = -40;
     public static final int TRIAD_ABSENCE_FINE2 = -40;
 
-    public static final int FIFTH_ABSENCE_FINE1 = -15;
+    public static final int FIFTH_ABSENCE_FINE1 = 15;
     public static final int FIFTH_ABSENCE_FINE2 = -5;
 
     public static final int DISSONANCE_FINE1 = -10;
     public static final int DISSONANCE_FINE2 = 10;
 
-    public static final int SEMITONE_DISSONANCE_FINE1 = -20;
-    public static final int SEMITONE_DISSONANCE_FINE2 = -20;
+    public static final int SEMITONE_DISSONANCE_FINE1 = -30;
+    public static final int SEMITONE_DISSONANCE_FINE2 = -30;
 
-    public static final int NO_MEASURE_PITCHES_FINE1 = -80;
-    public static final int NO_MEASURE_PITCHES_FINE2 = -80;
+    public static final int NO_MEASURE_PITCHES_FINE1 = -50;
+    public static final int NO_MEASURE_PITCHES_FINE2 = -50;
 
-    public static final int UNISONS_FINE1 = -5;
-    public static final int UNISONS_FINE2 = -5;
-
-
-
+    public static final int UNISONS_FINE1 = -10;
+    public static final int UNISONS_FINE2 = -10;
 
 
     protected int[] scale;
     protected int[] measure;
     protected int[] frequences;
 
+    protected Pair<Integer, Integer> fitnesses;
     private static Random random = new Random();
 
     public MeasureRepresentation(int[] scale, int[] frequences) {
@@ -112,6 +111,11 @@ public class MeasureRepresentation {
     }
 
     public Pair<Integer, Integer> getFitness(MeasureRepresentation nextMeasure) {
+        updateFitness(nextMeasure);
+        return fitnesses;
+    }
+
+    public void updateFitness(MeasureRepresentation nextMeasure) {
         int fitness1 = 0;
         int fitness2 = 0;
 
@@ -134,36 +138,45 @@ public class MeasureRepresentation {
         int dissonanceStatus = getDissonanceStatus(chord, nextChord);
         int dissonanceCount = getDissonancePitchesCount(chord);
         int invalidPithcesNum = getInvalidPitchesCount(chord);
+        int unisonCount = getUnisonsCount(chord);
+        boolean hasMeasurePitches = hasMeasurePitches(measure);
 
-        fitness1+=invalidPithcesNum*INVALID_PITCH_FINE1;
-        fitness2+=invalidPithcesNum*INVALID_PITCH_FINE2;
+        fitness1 += invalidPithcesNum * INVALID_PITCH_FINE1;
+        fitness2 += invalidPithcesNum * INVALID_PITCH_FINE2;
 
         switch (thirdStatus) {
             case HAS_TRIAD:
-                fitness1+=TONIC_FIRST_FINE1;
-                fitness2+=TONIC_FIRST_FINE2;
+                fitness1 += TONIC_FIRST_FINE1;
+                fitness2 += TONIC_FIRST_FINE2;
             case HAS_THIRD:
-                fitness1+=FIFTH_ABSENCE_FINE1;
-                fitness2+=FIFTH_ABSENCE_FINE2;
+                fitness1 += FIFTH_ABSENCE_FINE1;
+                fitness2 += FIFTH_ABSENCE_FINE2;
             case NO_THIRD:
-                fitness1+=TRIAD_ABSENCE_FINE1;
-                fitness2+=TRIAD_ABSENCE_FINE2;
+                fitness1 += TRIAD_ABSENCE_FINE1;
+                fitness2 += TRIAD_ABSENCE_FINE2;
         }
 
-        fitness1+=invalidPithcesNum*INVALID_PITCH_FINE1;
-        fitness2+=invalidPithcesNum*INVALID_PITCH_FINE2;
+        fitness1 += invalidPithcesNum * INVALID_PITCH_FINE1;
+        fitness2 += invalidPithcesNum * INVALID_PITCH_FINE2;
 
-        fitness1+=dissonanceCount*DISSONANCE_FINE1;
-        fitness2+=dissonanceCount*DISSONANCE_FINE2;
+        fitness1 += dissonanceCount * DISSONANCE_FINE1;
+        fitness2 += dissonanceCount * DISSONANCE_FINE2;
 
         switch (dissonanceStatus) {
             case MANY_SEMITONE_DISSONANCE_WITH_ONE_LEADING:
             case MANY_SEMITONE_DISSONANCE:
-                fitness1+=SEMITONE_DISSONANCE_FINE2;
-                fitness2+=SEMITONE_DISSONANCE_FINE2;
+                fitness1 += SEMITONE_DISSONANCE_FINE2;
+                fitness2 += SEMITONE_DISSONANCE_FINE2;
         }
 
-        return new Pair<>(fitness1, fitness2);
+        if (!hasMeasurePitches) {
+            fitness1 += NO_MEASURE_PITCHES_FINE1;
+            fitness2 += NO_MEASURE_PITCHES_FINE2;
+        }
+
+        fitness1 += unisonCount * UNISONS_FINE1;
+        fitness2 += unisonCount * UNISONS_FINE2;
+        fitnesses = new Pair<>(fitness1, fitness2);
     }
 
     public void mutatePitch(float probability) {
@@ -192,7 +205,7 @@ public class MeasureRepresentation {
     public void reinitialiseMeasure(float probability) {
         if (random.nextFloat() < probability) {
             int index = random.nextInt(7);
-            while (0 == frequences[(index++) % 7]);
+            while (0 == frequences[(index++) % 7]) ;
             index = (index - 1) % 7;
             for (int i = 0; i < measure.length; i++) {
                 measure[i] = scale[(index + 2 * i) % 7];
@@ -245,8 +258,8 @@ public class MeasureRepresentation {
 
     public int getUnisonsCount(int[] chord) {
         int count = 0;
-        for (int i = 0; i < chord.length-1; i++) {
-            if (chord[i] == chord[i+1]) {
+        for (int i = 0; i < chord.length - 1; i++) {
+            if (chord[i] == chord[i + 1]) {
                 count++;
             }
         }
@@ -281,7 +294,7 @@ public class MeasureRepresentation {
         int count = 0;
         for (int i = 0; i < chord.length; i++) {
             int index = Arrays.binarySearch(scale, chord[i]);
-            if (-1 == index || 2 == index || 4 == index || 6 == index || 7 == index) {
+            if (-1 == index || 1 == index || 3 == index || 5 == index || 6 == index) {
                 ++count;
             }
         }

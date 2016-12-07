@@ -2,13 +2,17 @@ package ga2;
 
 import javafx.util.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class Chromosome {
     protected List<MeasureRepresentation> measures;
+    protected Pair<Integer, Integer> fitnesses;
     private static Random random = new Random();
 
     // copy constructor
@@ -58,12 +62,19 @@ public class Chromosome {
         if (null != previousMeasure) {
             previousMeasure.mutation(null);
         }
+        // update fitnesses
+        getFitness();
     }
 
     public Pair<Integer, Integer> getFitness() {
+        updateFitness();
+        return fitnesses;
+    }
+
+    public void updateFitness() {
         int fitness1 = 0;
         int fitness2 = 0;
-        Pair<Integer, Integer> fitness ;
+        Pair<Integer, Integer> fitness;
 
         MeasureRepresentation previousMeasure = null;
         for (MeasureRepresentation measure : measures) {
@@ -81,7 +92,7 @@ public class Chromosome {
             fitness1 += fitness.getKey();
             fitness2 += fitness.getValue();
         }
-        return new Pair<Integer, Integer>(fitness1, fitness2);
+        fitnesses = new Pair<Integer, Integer>(fitness1, fitness2);
     }
 
 
