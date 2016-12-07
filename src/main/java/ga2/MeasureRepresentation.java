@@ -30,8 +30,8 @@ public class MeasureRepresentation implements Cloneable {
     public static final int FEW_SEMITONE_DISSONANCE = 2004;
 
 
-    public static final int INVALID_PITCH_FINE1 = -30;
-    public static final int INVALID_PITCH_FINE2 = -30;
+    public static final int INVALID_PITCH_FINE1 = -70;
+    public static final int INVALID_PITCH_FINE2 = -70;
 
     public static final int TONIC_FIRST_FINE1 = 10;
     public static final int TONIC_FIRST_FINE2 = 3;
