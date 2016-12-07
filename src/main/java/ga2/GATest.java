@@ -16,10 +16,13 @@ import java.util.*;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class GATest {
-    public static final int POPULATION_SIZE = 50;
-    public static final int NUMBER_OF_RUNS = 20000;
+    public static final int POPULATION_SIZE = 100;
+    public static final int NUMBER_OF_RUNS = 200;
+    public static final int CATACLYSM_TIME = 25;
     public static final double MUTATION_PERCENT = 0.2;
     public static final double CROSSOVER_PERCENT = 0.5;
+    public static final double SURVIVED_PERCENT = 0.5;
+
 
     public static final int FITNESS_WEIGHT_FIRST = 1;
     public static final int FITNESS_WEIGHT_SECOND = 1;
@@ -49,6 +52,9 @@ public class GATest {
         int[][] frequences = processPart(Scales.MAJOR_SCALE, part);
         initPopulation(frequences);
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
+            if (0 == i % CATACLYSM_TIME) {
+                operateCataclysm(frequences);
+            }
             operateMutation();
             operateCrossover();
             initNextGeneration();
@@ -100,6 +106,18 @@ public class GATest {
 
         for (Chromosome c : list) {
             population.add(c);
+        }
+    }
+
+    // survivors are randomly chosen
+    public void operateCataclysm(int[][] frequences) {
+        Chromosome[] oldPopulation = population.toArray(new Chromosome[1]);
+        population.clear();
+        while (population.size() < SURVIVED_PERCENT*POPULATION_SIZE) {
+            population.add(oldPopulation[(int)(Math.random()*oldPopulation.length)]);
+        }
+        while (population.size() < POPULATION_SIZE) {
+                population.add(new Chromosome(frequences));
         }
     }
 
