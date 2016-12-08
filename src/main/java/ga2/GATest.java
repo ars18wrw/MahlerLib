@@ -4,10 +4,7 @@ import javafx.util.Pair;
 import jm.constants.Durations;
 import jm.constants.Pitches;
 import jm.constants.Scales;
-import jm.music.data.Note;
-import jm.music.data.Part;
-import jm.music.data.Phrase;
-import jm.music.data.Score;
+import jm.music.data.*;
 import jm.util.Write;
 
 import java.util.*;
@@ -59,16 +56,18 @@ public class GATest {
             operateMutation();
             operateCrossover();
             initNextGeneration();
-            if (null == best || best.getFitness().getKey() < ((Chromosome) population.toArray()[0]).fitnesses.getKey()) {
-                best = new Chromosome(((Chromosome) population.toArray()[0]).measures);
-                best.updateFitness();
-            }
-            System.out.println(i + ": best:" + ((Chromosome) population.toArray()[0]).fitnesses + ", worst: " + ((Chromosome) population.toArray()[49]).fitnesses);
+//            if (null == best || best.getFitness().getKey() < ((Chromosome) population.toArray()[0]).fitnesses.getKey()) {
+//                best = new Chromosome(((Chromosome) population.toArray()[0]).measures);
+//                best.updateFitness();
+//            }
+            System.out.println(i + ": best:" + ((Chromosome) population.toArray()[0]).fitnesses.getKey()
+                    + ", worst: " + ((Chromosome) population.toArray()[49]).fitnesses.getKey());
         }
-//        Chromosome best = population.iterator().next();
+        best = population.iterator().next();
         Part accompaniment = processChromosome(Pitches.C4, best);
         score.add(accompaniment);
         Write.midi(score, "tutti.mid");
+        best.updateFitness();
         System.out.println(best.getFitness() + " : " + best.toString());
     }
 
@@ -114,15 +113,28 @@ public class GATest {
         }
     }
 
-    // survivors are randomly chosen
     public void operateCataclysm(int[][] frequences) {
-        Chromosome[] oldPopulation = population.toArray(new Chromosome[1]);
-        population.clear();
-        while (population.size() < SURVIVED_PERCENT*POPULATION_SIZE) {
-            population.add(oldPopulation[(int)(Math.random()*oldPopulation.length)]);
+        Iterator<Chromosome> iter;
+        Set<Chromosome> set = new HashSet<>();
+        Chromosome choosen = null;
+        int rand;
+        int index;
+        while(set.size() < SURVIVED_PERCENT*POPULATION_SIZE) {
+            iter = population.iterator();
+            rand = (int) (Math.random() * (population.size() - 1) * population.size() / 2.);
+            index = 0;
+            while (rand >= 0) {
+                rand -= population.size() - index;
+                choosen = iter.next();
+            }
+            iter.remove();
+            set.add(choosen);
         }
-        while (population.size() < POPULATION_SIZE) {
-                population.add(new Chromosome(frequences));
+
+        population.clear();
+        population.addAll(set);
+        while (population.size() < POPULATION_SIZE){
+            population.add(new Chromosome(frequences));
         }
     }
 
@@ -188,6 +200,7 @@ public class GATest {
             chord = measure.getMeasure().clone();
             for (int j = 0; j < chord.length; j++) {
                 chord[j] += tonic;
+//                phrase.add(new Note(chord[j], Durations.EIGHTH_NOTE_TRIPLET));
             }
             phrase.addChord(chord, Durations.QUARTER_NOTE);
         }

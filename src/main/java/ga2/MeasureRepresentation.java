@@ -13,7 +13,7 @@ public class MeasureRepresentation implements Cloneable {
     public static final float PITCH_MUTATION_PROBABILITY = 0.3f;
     public static final float REINITIALISE_MEASURE_PROBABILITY = 0.5f;
     public static final float COPY_PROBABILITY = 0.15f;
-    public static final float INVERSE_PROBABILITY = 0.5f;
+    public static final float INVERSE_PROBABILITY = 0.05f;
 
     // third status
     public static final int HAS_TRIAD = 1001;
@@ -29,30 +29,50 @@ public class MeasureRepresentation implements Cloneable {
     public static final int MANY_SEMITONE_DISSONANCE_WITH_ONE_LEADING = 2003;
     public static final int FEW_SEMITONE_DISSONANCE = 2004;
 
+    // harmony detection  status
+    public static final int TONIC_MAYBE_HARMONY = 3001;
+    public static final int SUBDOMINANT_MAYBE_HARMONY = 3002;
+    public static final int DOMINANT_MAYBE_HARMONY = 3003;
+    public static final int NO_HARMONY = 3004;
 
-    public static final int INVALID_PITCH_FINE1 = -70;
-    public static final int INVALID_PITCH_FINE2 = -70;
+    public static final int TONIC_HARMONY = 3005;
+    public static final int SUBDOMINANT_HARMONY = 3006;
+    public static final int DOMINANT_HARMONY = 3007;
 
-    public static final int TONIC_FIRST_FINE1 = 10;
+
+    public static final int INVALID_PITCH_FINE1 = -30;
+    public static final int INVALID_PITCH_FINE2 = -7;
+
+    public static final int TONIC_FIRST_FINE1 = 3;
     public static final int TONIC_FIRST_FINE2 = 3;
 
-    public static final int TRIAD_ABSENCE_FINE1 = -50;
+    public static final int TRIAD_ABSENCE_FINE1 = -40;
     public static final int TRIAD_ABSENCE_FINE2 = -50;
 
-    public static final int FIFTH_ABSENCE_FINE1 = -25;
+    public static final int FIFTH_ABSENCE_FINE1 = -15;
     public static final int FIFTH_ABSENCE_FINE2 = -15;
 
     public static final int DISSONANCE_FINE1 = -20;
     public static final int DISSONANCE_FINE2 = 20;
 
-    public static final int SEMITONE_DISSONANCE_FINE1 = -30;
-    public static final int SEMITONE_DISSONANCE_FINE2 = -30;
+    public static final int SEMITONE_DISSONANCE_FINE1 = -10;
+    public static final int SEMITONE_DISSONANCE_FINE2 = -70;
 
     public static final int NO_MEASURE_PITCHES_FINE1 = -40;
-    public static final int NO_MEASURE_PITCHES_FINE2 = -40;
+    public static final int NO_MEASURE_PITCHES_FINE2 = -6;
 
-    public static final int UNISONS_FINE1 = -10;
-    public static final int UNISONS_FINE2 = -10;
+    public static final int UNISONS_FINE1 = -15;
+    public static final int UNISONS_FINE2 = -2;
+
+    public static final int HAS_HARMONY_FINE1 = 3;
+    public static final int HAS_HARMONY_FINE2 = 4;
+
+    public static final int HAS_POSSIBLY_RIGHT_HARMONY_FINE1 = 5;
+    public static final int HAS_POSSIBLY_RIGHT_HARMONY_FINE2 = 4;
+
+    public static final int HAS_BELIEVED_RIGHT_HARMONY_FINE1 = 20;
+    public static final int HAS_BELIEVED_RIGHT_HARMONY_FINE2 = 4;
+
 
 
     protected int[] scale;
@@ -139,11 +159,11 @@ public class MeasureRepresentation implements Cloneable {
     public void updateFitness(MeasureRepresentation nextMeasure) {
         int fitness1 = 0;
         int fitness2 = 0;
-
+        int melodyPitch = getChordMelodyPitch();
         // chord
         int[] chord = new int[measure.length + 1];
         System.arraycopy(measure, 0, chord, 0, measure.length);
-        chord[chord.length - 1] = getChordMelodyPitch();
+        chord[chord.length - 1] = melodyPitch;
         Arrays.sort(chord);
 
         // next chord
@@ -156,47 +176,65 @@ public class MeasureRepresentation implements Cloneable {
         }
 
         int thirdStatus = getThirdStatus(chord);
-        int dissonanceStatus = getDissonanceStatus(chord, nextChord);
-        int dissonanceCount = getDissonancePitchesCount(chord);
-        int invalidPithcesNum = getInvalidPitchesCount(chord);
+        int semitoneDissonanceStatus = getSemitoneDissonanceStatus(chord, nextChord);
+        //int dissonanceCount = getDissonancePitchesCount(chord);
+        int invalidPithcesCount = getInvalidPitchesCount(chord);
         int unisonCount = getUnisonsCount(chord);
+        int detectedHarmony = detectHarmony(chord);
         boolean hasMeasurePitches = hasMeasurePitches(measure);
+        boolean hasPossiblyRightHarmony = hasPossiblyRightHarmony(melodyPitch, detectedHarmony);
 
-        fitness1 += invalidPithcesNum * INVALID_PITCH_FINE1;
-        fitness2 += invalidPithcesNum * INVALID_PITCH_FINE2;
+        fitness1 += invalidPithcesCount * INVALID_PITCH_FINE1;
+        //fitness2 += invalidPithcesCount * INVALID_PITCH_FINE2;
 
         switch (thirdStatus) {
             case HAS_TRIAD:
                 fitness1 += TONIC_FIRST_FINE1;
-                fitness2 += TONIC_FIRST_FINE2;
+                //fitness2 += TONIC_FIRST_FINE2;
             case HAS_THIRD:
                 fitness1 += FIFTH_ABSENCE_FINE1;
-                fitness2 += FIFTH_ABSENCE_FINE2;
+                //fitness2 += FIFTH_ABSENCE_FINE2;
             case NO_THIRD:
                 fitness1 += TRIAD_ABSENCE_FINE1;
-                fitness2 += TRIAD_ABSENCE_FINE2;
+                //fitness2 += TRIAD_ABSENCE_FINE2;
         }
 
-        fitness1 += invalidPithcesNum * INVALID_PITCH_FINE1;
-        fitness2 += invalidPithcesNum * INVALID_PITCH_FINE2;
+        fitness1 += invalidPithcesCount * INVALID_PITCH_FINE1;
+        //fitness2 += invalidPithcesCount * INVALID_PITCH_FINE2;
 
-        fitness1 += dissonanceCount * DISSONANCE_FINE1;
-        fitness2 += dissonanceCount * DISSONANCE_FINE2;
+//        fitness1 += dissonanceCount * DISSONANCE_FINE1;
+//        //fitness2 += dissonanceCount * DISSONANCE_FINE2;
 
-        switch (dissonanceStatus) {
+        switch (semitoneDissonanceStatus) {
             case MANY_SEMITONE_DISSONANCE_WITH_ONE_LEADING:
             case MANY_SEMITONE_DISSONANCE:
-                fitness1 += SEMITONE_DISSONANCE_FINE2;
-                fitness2 += SEMITONE_DISSONANCE_FINE2;
+                fitness1 += SEMITONE_DISSONANCE_FINE1;
+                //fitness2 += SEMITONE_DISSONANCE_FINE2;
         }
 
         if (!hasMeasurePitches) {
             fitness1 += NO_MEASURE_PITCHES_FINE1;
-            fitness2 += NO_MEASURE_PITCHES_FINE2;
+            //fitness2 += NO_MEASURE_PITCHES_FINE2;
         }
 
         fitness1 += unisonCount * UNISONS_FINE1;
-        fitness2 += unisonCount * UNISONS_FINE2;
+        //fitness2 += unisonCount * UNISONS_FINE2;
+
+        if (NO_HARMONY != detectedHarmony) {
+            fitness1 +=  HAS_HARMONY_FINE1;
+            //fitness2 += HAS_HARMONY_FINE1;
+        }
+
+        if (hasPossiblyRightHarmony) {
+            if (detectedHarmony >= TONIC_HARMONY) {
+                fitness1 += HAS_BELIEVED_RIGHT_HARMONY_FINE1;
+                //fitness2 += HAS_POSSIBLY_RIGHT_HARMONY_FINE2;
+            } else {
+                fitness1 += HAS_POSSIBLY_RIGHT_HARMONY_FINE1;
+                //fitness2 += HAS_POSSIBLY_RIGHT_HARMONY_FINE2;
+            }
+        }
+
         fitnesses = new Pair<>(fitness1, fitness2);
     }
 
@@ -287,6 +325,49 @@ public class MeasureRepresentation implements Cloneable {
         return count;
     }
 
+    public int detectHarmony(int[] chord) {
+        int[] harmonies = {0, 0, 0}; // t, s, d
+        for (int i = 0; i < chord.length; i++) {
+            if (i == 0 || chord[i] != chord[i - 1]) {
+                switch (Arrays.binarySearch(scale, chord[i])) {
+                    case 0:
+                        harmonies[0]++;
+                        harmonies[1]++;
+                    case 1:
+                        harmonies[2]++;
+                    case 2:
+                        harmonies[0]++;
+                    case 3:
+                        harmonies[1]++;
+                    case 4:
+                        harmonies[0]++;
+                        harmonies[2]++;
+                    case 5:
+                        harmonies[1]++;
+                    case 6:
+                        harmonies[2]++;
+                    default:
+                }
+            }
+        }
+        // find the max and detect harmony
+        int index = -1;
+        int max = -1;
+        boolean isTheOnly = true;
+        for (int i = 0; i < harmonies.length; i++) {
+            if (max <= harmonies[i]) {
+                if (max == harmonies[i]) {
+                    isTheOnly = false;
+                } else {
+                    isTheOnly = true;
+                    max = harmonies[i];
+                    index = i;
+                }
+            }
+        }
+        return isTheOnly && max >= 2 ? (max == 3 ? index + TONIC_HARMONY : index + TONIC_MAYBE_HARMONY) : NO_HARMONY;
+    }
+
     public boolean hasMeasurePitches(int[] chord) {
         boolean hasMeasurePitches = false;
         int pitch;
@@ -304,7 +385,7 @@ public class MeasureRepresentation implements Cloneable {
     public int getInvalidPitchesCount(int[] chord) {
         int count = 0;
         for (int i = 0; i < chord.length; i++) {
-            if (-1 == Arrays.binarySearch(scale, chord[i])) {
+            if (0 > Arrays.binarySearch(scale, chord[i])) {
                 ++count;
             }
         }
@@ -315,23 +396,23 @@ public class MeasureRepresentation implements Cloneable {
         int count = 0;
         for (int i = 0; i < chord.length; i++) {
             int index = Arrays.binarySearch(scale, chord[i]);
-            if (-1 == index || 1 == index || 3 == index || 5 == index || 6 == index) {
+            if (0 > index || 1 == index || 3 == index || 5 == index || 6 == index) {
                 ++count;
             }
         }
         return count;
     }
 
-    public int getDissonanceStatus(int[] chord, int[] nextChord) {
+    public int getSemitoneDissonanceStatus(int[] chord, int[] nextChord) {
         int countSemitone = 0;
         boolean hasLeadingSemitone = false;
-        for (int i = 0; i < measure.length; i++) {
+        for (int i = 0; i < chord.length; i++) {
             for (int j = 0; j < scale.length; j++) {
-                if (1 == Math.abs(measure[i] - scale[j])) {
+                if (1 == Math.abs(chord[i] - scale[j])) {
                     ++countSemitone;
                 }
                 if (null != nextChord) {
-                    if (j < nextChord.length && 1 == Math.abs((measure[i] - nextChord[j]))) {
+                    if (j < nextChord.length && 1 == Math.abs((chord[i] - nextChord[j]))) {
                         hasLeadingSemitone = true;
                     }
                 }
@@ -342,6 +423,30 @@ public class MeasureRepresentation implements Cloneable {
         } else {
             return countSemitone > 1 ? MANY_SEMITONE_DISSONANCE : FEW_SEMITONE_DISSONANCE;
         }
+    }
+
+    public boolean hasPossiblyRightHarmony(int melodyPitch, int detectedHarmony) {
+        int index = Arrays.binarySearch(scale, melodyPitch);
+        switch (detectedHarmony) {
+            case NO_HARMONY:
+                return false;
+            case TONIC_HARMONY:
+            case TONIC_MAYBE_HARMONY:
+                if (index != 0 && index != 2 && index != 4) {
+                    return false;
+                }
+            case SUBDOMINANT_HARMONY:
+            case SUBDOMINANT_MAYBE_HARMONY:
+                if (index != 3 && index != 5 && index != 0) {
+                    return false;
+                }
+            case DOMINANT_HARMONY:
+            case DOMINANT_MAYBE_HARMONY:
+                if (index != 4 && index != 6 && index != 2) {
+                    return false;
+                }
+        }
+        return true;
     }
 
     public static int getRandomNote() {

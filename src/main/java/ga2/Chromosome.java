@@ -92,11 +92,9 @@ public class Chromosome {
         for (MeasureRepresentation measure : measures) {
             if (null != previousMeasure) {
                 fitness = previousMeasure.getFitness(measure);
-            } else {
-                fitness = measure.getFitness(null);
+                fitness1 += fitness.getKey();
+                fitness2 += fitness.getValue();
             }
-            fitness1 += fitness.getKey();
-            fitness2 += fitness.getValue();
             previousMeasure = measure;
         }
         if (null != previousMeasure) {
