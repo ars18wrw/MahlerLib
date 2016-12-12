@@ -36,10 +36,16 @@ public class MeasureRepresentation implements Cloneable {
     public static final int SUBDOMINANT_MAYBE_HARMONY = 3002;
     public static final int DOMINANT_MAYBE_HARMONY = 3003;
     public static final int NO_HARMONY = 3004;
-
     public static final int TONIC_HARMONY = 3005;
     public static final int SUBDOMINANT_HARMONY = 3006;
     public static final int DOMINANT_HARMONY = 3007;
+
+    // transition direction status
+    public static final int UP_TRANSITION = 4001;
+    public static final int NO_TRANSITION = 4002;
+    public static final int DOWN_TRANSITION = 4003;
+
+    public static final int TRANSITION_MOVEMENT_DIFFERENCE = 3;
 
 
     public static final int INVALID_PITCH_FINE1 = -30;
@@ -74,6 +80,34 @@ public class MeasureRepresentation implements Cloneable {
 
     public static final int HAS_BELIEVED_RIGHT_HARMONY_FINE1 = 20;
     public static final int HAS_BELIEVED_RIGHT_HARMONY_FINE2 = 4;
+
+    public static final int RIGHT_DIRECTION_FINE1 = 5;
+    public static final int ALMOST_RIGHT_DIRECTION_FINE1 = 1;
+    public static final int WRONG_DIRECTION_FINE1 = -5;
+
+    public static final int RIGHT_DIRECTION_FINE2 = 5;
+    public static final int ALMOST_RIGHT_DIRECTION_FINE2 = 1;
+    public static final int WRONG_DIRECTION_FINE2 = -5;
+
+    public static final int TONIC_TO_TONIC_FINE1 = 5;
+    public static final int TONIC_TO_SUBDOMINATE_FINE1 = 2;
+    public static final int TONIC_TO_DOMINATE_FINE1 = 5;
+    public static final int SUBDOMINATE_TO_TONIC_FINE1 = 3;
+    public static final int SUBDOMINATE_TO_SUBDOMINATE_FINE1 = 5;
+    public static final int SUBDOMINATE_TO_DOMINATE_FINE1 = -4;
+    public static final int DOMINATE_TO_TONIC_FINE1 = 5;
+    public static final int DOMINATE_TO_SUBDOMINATE_FINE1 = -5;
+    public static final int DOMINATE_TO_DOMINATE_FINE1 = -4;
+
+    public static final int TONIC_TO_TONIC_FINE2 = 5;
+    public static final int TONIC_TO_SUBDOMINATE_FINE2 = 2;
+    public static final int TONIC_TO_DOMINATE_FINE2 = 5;
+    public static final int SUBDOMINATE_TO_TONIC_FINE2 = 3;
+    public static final int SUBDOMINATE_TO_SUBDOMINATE_FINE2 = 5;
+    public static final int SUBDOMINATE_TO_DOMINATE_FINE2 = -4;
+    public static final int DOMINATE_TO_TONIC_FINE2 = 5;
+    public static final int DOMINATE_TO_SUBDOMINATE_FINE2 = -5;
+    public static final int DOMINATE_TO_DOMINATE_FINE2 = -4;
 
 
 
@@ -242,11 +276,60 @@ public class MeasureRepresentation implements Cloneable {
             if (detectedHarmony >= TONIC_HARMONY) {
                 fitness1 += HAS_BELIEVED_RIGHT_HARMONY_FINE1;
                 fines[7]++;
+                int nextMeasureDetectedHarmony = nextMeasure.detectHarmony(nextChord);
+                if (null != nextMeasure && nextMeasureDetectedHarmony >= TONIC_HARMONY) {
+                    switch (detectedHarmony + 3*nextMeasureDetectedHarmony) {
+                        case 3005+3*3005:
+                            fitness1 += TONIC_TO_TONIC_FINE1;
+                            fitness2 += TONIC_TO_TONIC_FINE2;
+                        case 3005+3*3006:
+                            fitness1 += TONIC_TO_SUBDOMINATE_FINE1;
+                            fitness2 += TONIC_TO_SUBDOMINATE_FINE2;
+                        case 3005+3*3007:
+                            fitness1 += TONIC_TO_DOMINATE_FINE1;
+                            fitness2 += TONIC_TO_DOMINATE_FINE2;
+                        case 3006+3*3005:
+                            fitness1 += SUBDOMINATE_TO_TONIC_FINE1;
+                            fitness2 += SUBDOMINATE_TO_TONIC_FINE2;
+                        case 3006+3*3006:
+                            fitness1 += SUBDOMINATE_TO_SUBDOMINATE_FINE1;
+                            fitness2 += SUBDOMINATE_TO_SUBDOMINATE_FINE2;
+                        case 3006+3*3007:
+                            fitness1 += SUBDOMINATE_TO_DOMINATE_FINE1;
+                            fitness2 += SUBDOMINATE_TO_DOMINATE_FINE2;
+                        case 3007+3*3005:
+                            fitness1 += DOMINATE_TO_TONIC_FINE1;
+                            fitness2 += DOMINATE_TO_TONIC_FINE2;
+                        case 3007+3*3006:
+                            fitness1 += DOMINATE_TO_SUBDOMINATE_FINE1;
+                            fitness2 += DOMINATE_TO_SUBDOMINATE_FINE2;
+                        case 3007+3*3007:
+                            fitness1 += DOMINATE_TO_DOMINATE_FINE1;
+                            fitness2 += DOMINATE_TO_DOMINATE_FINE2;
+                    }
+                }
                 //fitness2 += HAS_POSSIBLY_RIGHT_HARMONY_FINE2;
             } else {
                 fitness1 += HAS_POSSIBLY_RIGHT_HARMONY_FINE1;
                 fines[8]++;
                 //fitness2 += HAS_POSSIBLY_RIGHT_HARMONY_FINE2;
+            }
+        }
+
+        if (null != nextChord) {
+            int chordTransitionStatus = getChordTransitionDirectionStatus(chord, nextChord);
+            int melodyTransitionStatus = getMelodyTransitionDirectionStatus(this, nextMeasure);
+
+            switch (Math.abs(chordTransitionStatus - melodyTransitionStatus)) {
+                case 2:
+                    fitness1+= WRONG_DIRECTION_FINE1;
+                    fitness2+= WRONG_DIRECTION_FINE2;
+                case 1:
+                    fitness1+= ALMOST_RIGHT_DIRECTION_FINE1;
+                    fitness2+= ALMOST_RIGHT_DIRECTION_FINE2;
+                case 0:
+                    fitness1+= RIGHT_DIRECTION_FINE1;
+                    fitness2+= RIGHT_DIRECTION_FINE2;
             }
         }
 
@@ -493,4 +576,40 @@ public class MeasureRepresentation implements Cloneable {
     protected Object clone() throws CloneNotSupportedException {
         return new MeasureRepresentation(scale, frequences, measure);
     }
+
+    protected int getMelodyTransitionDirectionStatus(MeasureRepresentation previous, MeasureRepresentation current) {
+        int melodyMovementDifference = 0;
+        int melodyMovementStatus;
+        for (int i = 0; i < previous.frequences.length; i++) {
+            melodyMovementDifference += previous.frequences[i]*i;
+            melodyMovementDifference -= current.frequences[i]*i;
+        }
+        if (melodyMovementDifference <= -TRANSITION_MOVEMENT_DIFFERENCE) {
+            melodyMovementStatus = UP_TRANSITION;
+        } else if (melodyMovementDifference >= TRANSITION_MOVEMENT_DIFFERENCE) {
+            melodyMovementStatus = DOWN_TRANSITION;
+        } else {
+            melodyMovementStatus = NO_TRANSITION;
+        }
+        return melodyMovementStatus;
+    }
+
+    protected int getChordTransitionDirectionStatus(int[] previous, int[] current) {
+        int accompanimentMovementDifference = 0;
+        int accompanimentMovementStatus = 0;
+        for (int i = 0; i < previous.length; i++) {
+            accompanimentMovementDifference += previous[i];
+            accompanimentMovementDifference -= current[i];
+        }
+        if (accompanimentMovementDifference <= -TRANSITION_MOVEMENT_DIFFERENCE) {
+            accompanimentMovementStatus = UP_TRANSITION;
+        } else if (accompanimentMovementDifference >= TRANSITION_MOVEMENT_DIFFERENCE) {
+            accompanimentMovementStatus = DOWN_TRANSITION;
+        } else {
+            accompanimentMovementStatus = NO_TRANSITION;
+        }
+
+        return accompanimentMovementStatus;
+    }
+
 }
