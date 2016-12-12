@@ -10,10 +10,12 @@ import java.util.Random;
  * Created by Уладзімір Асіпчук on 20/11/2016.
  */
 public class MeasureRepresentation implements Cloneable {
-    public static final float PITCH_MUTATION_PROBABILITY = 0.3f;
-    public static final float REINITIALISE_MEASURE_PROBABILITY = 0.5f;
-    public static final float COPY_PROBABILITY = 0.15f;
-    public static final float INVERSE_PROBABILITY = 0.05f;
+    public static final float PITCH_MUTATION_PROBABILITY = 0.4f;
+    public static final float REINITIALISE_MEASURE_PROBABILITY = 0.4f;
+    public static final float COPY_PROBABILITY = 0.05f;
+    public static final float INVERSE_PROBABILITY = 0.15f;
+
+    int[] fines = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     // third status
     public static final int HAS_TRIAD = 1001;
@@ -141,13 +143,13 @@ public class MeasureRepresentation implements Cloneable {
     public void mutation(MeasureRepresentation nextMeasure) {
         float rand = random.nextFloat();
         if (rand < PITCH_MUTATION_PROBABILITY) {
-            mutatePitch(PITCH_MUTATION_PROBABILITY);
+            mutatePitch(1);
         } else if (rand < PITCH_MUTATION_PROBABILITY + INVERSE_PROBABILITY) {
-            inverse(INVERSE_PROBABILITY);
+            inverse(1);
         } else if (rand < PITCH_MUTATION_PROBABILITY + INVERSE_PROBABILITY + REINITIALISE_MEASURE_PROBABILITY) {
-            reinitialiseMeasure(REINITIALISE_MEASURE_PROBABILITY);
+            reinitialiseMeasure(1);
         } else {
-            copy(COPY_PROBABILITY, nextMeasure);
+            copy(1, nextMeasure);
         }
     }
 
@@ -190,16 +192,22 @@ public class MeasureRepresentation implements Cloneable {
         switch (thirdStatus) {
             case HAS_TRIAD:
                 fitness1 += TONIC_FIRST_FINE1;
+                fines[3]++;
                 //fitness2 += TONIC_FIRST_FINE2;
             case HAS_THIRD:
                 fitness1 += FIFTH_ABSENCE_FINE1;
+                fines[2]++;
                 //fitness2 += FIFTH_ABSENCE_FINE2;
             case NO_THIRD:
                 fitness1 += TRIAD_ABSENCE_FINE1;
+                fines[1]++;
                 //fitness2 += TRIAD_ABSENCE_FINE2;
         }
 
         fitness1 += invalidPithcesCount * INVALID_PITCH_FINE1;
+        if (invalidPithcesCount > 0) {
+            fines[0]++;
+        }
         //fitness2 += invalidPithcesCount * INVALID_PITCH_FINE2;
 
 //        fitness1 += dissonanceCount * DISSONANCE_FINE1;
@@ -209,14 +217,19 @@ public class MeasureRepresentation implements Cloneable {
             case MANY_SEMITONE_DISSONANCE_WITH_ONE_LEADING:
             case MANY_SEMITONE_DISSONANCE:
                 fitness1 += SEMITONE_DISSONANCE_FINE1;
+                fines[4]++;
                 //fitness2 += SEMITONE_DISSONANCE_FINE2;
         }
 
         if (!hasMeasurePitches) {
             fitness1 += NO_MEASURE_PITCHES_FINE1;
+            fines[5]++;
             //fitness2 += NO_MEASURE_PITCHES_FINE2;
         }
 
+        if (unisonCount > 0) {
+            fines[6]++;
+        }
         fitness1 += unisonCount * UNISONS_FINE1;
         //fitness2 += unisonCount * UNISONS_FINE2;
 
@@ -228,9 +241,11 @@ public class MeasureRepresentation implements Cloneable {
         if (hasPossiblyRightHarmony) {
             if (detectedHarmony >= TONIC_HARMONY) {
                 fitness1 += HAS_BELIEVED_RIGHT_HARMONY_FINE1;
+                fines[7]++;
                 //fitness2 += HAS_POSSIBLY_RIGHT_HARMONY_FINE2;
             } else {
                 fitness1 += HAS_POSSIBLY_RIGHT_HARMONY_FINE1;
+                fines[8]++;
                 //fitness2 += HAS_POSSIBLY_RIGHT_HARMONY_FINE2;
             }
         }

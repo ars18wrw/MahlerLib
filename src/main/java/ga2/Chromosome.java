@@ -14,6 +14,7 @@ public class Chromosome {
     protected List<MeasureRepresentation> measures;
     protected Pair<Integer, Integer> fitnesses;
     private static Random random = new Random();
+    int[] fines = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     // copy constructor
     public Chromosome(List<MeasureRepresentation> measures) {
@@ -94,6 +95,9 @@ public class Chromosome {
                 fitness = previousMeasure.getFitness(measure);
                 fitness1 += fitness.getKey();
                 fitness2 += fitness.getValue();
+                for (int j = 0; j < fines.length; j++) {
+                    fines[j]+=previousMeasure.fines[j];
+                }
             }
             previousMeasure = measure;
         }
@@ -101,6 +105,9 @@ public class Chromosome {
             fitness = previousMeasure.getFitness(null);
             fitness1 += fitness.getKey();
             fitness2 += fitness.getValue();
+            for (int j = 0; j < fines.length; j++) {
+                fines[j]+=previousMeasure.fines[j];
+            }
         }
         fitnesses = new Pair<Integer, Integer>(fitness1, fitness2);
     }

@@ -4,7 +4,10 @@ import javafx.util.Pair;
 import jm.constants.Durations;
 import jm.constants.Pitches;
 import jm.constants.Scales;
-import jm.music.data.*;
+import jm.music.data.Note;
+import jm.music.data.Part;
+import jm.music.data.Phrase;
+import jm.music.data.Score;
 import jm.util.Write;
 
 import java.util.*;
@@ -16,6 +19,8 @@ public class GATest {
     public static final int POPULATION_SIZE = 100;
     public static final int NUMBER_OF_RUNS = 1000;
     public static final int CATACLYSM_TIME = 25;
+    public static final int PRINT_LOG_TIME = 25;
+
     public static final double MUTATION_PERCENT = 0.2;
     public static final double CROSSOVER_PERCENT = 0.5;
     public static final double SURVIVED_PERCENT = 0.3;
@@ -51,6 +56,11 @@ public class GATest {
         initPopulation(frequences);
         for (int i = 0; i < NUMBER_OF_RUNS; i++) {
             if (0 == i % CATACLYSM_TIME) {
+                best =  population.iterator().next();
+                for (int j = 0; j < best.fines.length; j++) {
+                    System.out.print(best.fines[j] + " ");
+                }
+                System.out.println();
                 operateCataclysm(frequences);
             }
             operateMutation();
@@ -60,12 +70,13 @@ public class GATest {
 //                best = new Chromosome(((Chromosome) population.toArray()[0]).measures);
 //                best.updateFitness();
 //            }
-            System.out.println(i + ": best:" + ((Chromosome) population.toArray()[0]).fitnesses.getKey()
-                    + ", worst: " + ((Chromosome) population.toArray()[49]).fitnesses.getKey());
+//            System.out.println(i + ": best:" + ((Chromosome) population.toArray()[0]).fitnesses.getKey()
+//                    + ", worst: " + ((Chromosome) population.toArray()[49]).fitnesses.getKey());
         }
         best = population.iterator().next();
-        Part accompaniment = processChromosome(Pitches.C4, best);
+        Part accompaniment = processChromosome(part, Pitches.C4, best);
         score.add(accompaniment);
+        score.setTempo(60);
         Write.midi(score, "tutti.mid");
         best.updateFitness();
         System.out.println(best.getFitness() + " : " + best.toString());
@@ -139,6 +150,18 @@ public class GATest {
     }
 
     public Part initPart() {
+//        Phrase resultPhrase = new Phrase();
+//        Score temp = new Score();
+//        Read.midi(temp, "C:\\Repo\\MahlerLib\\papageno.mid");
+//        Note[] notes = temp.getPart(0).getPhrase(0).getNoteArray();
+//        for (int i = 0; i < notes.length; i++) {
+//            if (notes[i].getPitch() > 0) {
+//                resultPhrase.addNote(notes[i]);
+//            }
+//        }
+//        Part result = new Part();
+//        result.add(resultPhrase);
+//        return result;
         Part part = new Part();
         Phrase phrase = new Phrase();
 
@@ -167,6 +190,7 @@ public class GATest {
         part.add(phrase);
 
         return part;
+//    return temp.getPart(0);
     }
 
     public int[][] processPart(int[] scale, Part part) {
@@ -191,18 +215,26 @@ public class GATest {
         return frequences;
     }
 
-    public Part processChromosome(int tonic, Chromosome chromosome) {
+    public Part processChromosome(Part melody, int tonic, Chromosome chromosome) {
         Part part = new Part();
+        Note[] notes = melody.getPhrase(0).getNoteArray();
+        List<Double> durations = new LinkedList<>();
+        for (int i = 0; i < notes.length; i++) {
+            if (notes[i].getPitch() > 0) {
+                durations.add(notes[i].getRhythmValue());
+            }
+        }
+
         Phrase phrase = new Phrase();
-        // TODO durations of accompaniment
         int[] chord;
+        Iterator<Double> iter = durations.iterator();
         for (MeasureRepresentation measure : chromosome.measures) {
             chord = measure.getMeasure().clone();
             for (int j = 0; j < chord.length; j++) {
                 chord[j] += tonic;
 //                phrase.add(new Note(chord[j], Durations.EIGHTH_NOTE_TRIPLET));
             }
-            phrase.addChord(chord, Durations.QUARTER_NOTE);
+            phrase.addChord(chord, iter.next());
         }
         part.add(phrase);
         return part;
@@ -211,7 +243,9 @@ public class GATest {
     public void initPopulation(int[][] frequences) {
         List<Chromosome> list = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            population.add(new Chromosome(frequences));
+            Chromosome c = new Chromosome(frequences);
+            c.updateFitness();
+            population.add(c);
         }
     }
 }

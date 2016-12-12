@@ -182,7 +182,7 @@ public final class DegreeHarmonization {
         Part accompaniment = new Part();
         Part solo = new Part();
         for (int i = 0; i < result.length; i++) {
-            CPhrase cPhraseAccompaniment = chords.ChordUtility.buildChordInMajor(pitchesToHarmonize.get(i), result[i]);
+            CPhrase cPhraseAccompaniment = chords.ChordUtility.buildChordInMajor(new Note(pitchesToHarmonize.get(i).getPitch()-24, pitchesToHarmonize.get(i).getRhythmValue()), result[i]);
             accompaniment.addCPhrase(cPhraseAccompaniment);
             CPhrase cPhraseSolo = new CPhrase();
             cPhraseSolo.addPhrase(new Phrase(pitchesToHarmonize.get(i)));

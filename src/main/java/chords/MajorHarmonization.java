@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public final class MajorHarmonization {
     // TODO Specify
-    private static final String FOLDER = "melodies\\";
+    private static final String FOLDER = "";
     private static final String NAME = "papageno";
     private static final String EXT = ".mid";
 
@@ -175,16 +175,17 @@ public final class MajorHarmonization {
 
         for (int i = 0; i < result.length; i++) {
             System.out.print(result[i]);
-            CPhrase cPhraseAccompaniment = ChordUtility.buildChordInMajor(pitchesToHarmonize.get(i), result[i]);
+            CPhrase cPhraseAccompaniment = chords.ChordUtility.buildChordInMajor(new Note(pitchesToHarmonize.get(i).getPitch()-12, pitchesToHarmonize.get(i).getRhythmValue()), result[i]);
             accompaniment.addCPhrase(cPhraseAccompaniment);
             CPhrase cPhraseSolo = new CPhrase();
             cPhraseSolo.addPhrase(new Phrase(pitchesToHarmonize.get(i)));
             solo.addCPhrase(cPhraseSolo);
         }
-//        solo.setChannel(2);
-//        solo.setInstrument(Part.VIOLIN);
-//        score.add(solo);
+        solo.setChannel(2);
+        solo.setInstrument(Part.VIOLIN);
+        score.add(solo);
         score.add(accompaniment);
+        score.setTempo(60);
 
         Write.midi(score, "Harmonization.mid");
     }
