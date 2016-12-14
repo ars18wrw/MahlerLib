@@ -80,7 +80,6 @@ public class Chromosome {
     }
 
     public Pair<Integer, Integer> getFitness() {
-        updateFitness();
         return fitnesses;
     }
 
@@ -92,7 +91,7 @@ public class Chromosome {
         MeasureRepresentation previousMeasure = null;
         for (MeasureRepresentation measure : measures) {
             if (null != previousMeasure) {
-                fitness = previousMeasure.getFitness(measure);
+                fitness = previousMeasure.updateFitness(measure);
                 fitness1 += fitness.getKey();
                 fitness2 += fitness.getValue();
                 for (int j = 0; j < fines.length; j++) {
@@ -102,7 +101,7 @@ public class Chromosome {
             previousMeasure = measure;
         }
         if (null != previousMeasure) {
-            fitness = previousMeasure.getFitness(null);
+            fitness = previousMeasure.updateFitness(null);
             fitness1 += fitness.getKey();
             fitness2 += fitness.getValue();
             for (int j = 0; j < fines.length; j++) {

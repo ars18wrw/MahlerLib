@@ -187,12 +187,11 @@ public class MeasureRepresentation implements Cloneable {
         }
     }
 
-    public Pair<Integer, Integer> getFitness(MeasureRepresentation nextMeasure) {
-        updateFitness(nextMeasure);
+    public Pair<Integer, Integer> getFitness() {
         return fitnesses;
     }
 
-    public void updateFitness(MeasureRepresentation nextMeasure) {
+    public Pair<Integer, Integer> updateFitness(MeasureRepresentation nextMeasure) {
         int fitness1 = 0;
         int fitness2 = 0;
         int melodyPitch = getChordMelodyPitch();
@@ -334,6 +333,7 @@ public class MeasureRepresentation implements Cloneable {
         }
 
         fitnesses = new Pair<>(fitness1, fitness2);
+        return fitnesses;
     }
 
     public void mutatePitch(float probability) {

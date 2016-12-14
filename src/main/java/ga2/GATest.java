@@ -29,7 +29,7 @@ public class GATest {
     public static final int FITNESS_WEIGHT_FIRST = 1;
     public static final int FITNESS_WEIGHT_SECOND = 1;
 
-    protected Set<Chromosome> population = new TreeSet<Chromosome>(new Comparator<Chromosome>() {
+    protected static final Comparator<Chromosome> comparator = new Comparator<Chromosome>() {
         @Override
         public int compare(Chromosome o1, Chromosome o2) {
             Pair<Integer, Integer> firstFitness = o1.getFitness();
@@ -41,7 +41,9 @@ public class GATest {
             }
             return -result;
         }
-    });
+    };
+
+    protected List<Chromosome> population = new ArrayList<>();
 
     public static void main(String[] args) {
         new GATest().process();
@@ -82,6 +84,12 @@ public class GATest {
         System.out.println(best.getFitness() + " : " + best.toString());
     }
 
+    public void updatePopulationFitnesses() {
+        for (Chromosome chr : population) {
+            chr.updateFitness();
+        }
+    }
+
 
     public void operateCrossover() {
         Object[] oldPopulation = population.toArray();
@@ -100,6 +108,8 @@ public class GATest {
 
     // roulette. The best takes size probability, the second - size-1, ..., the worst - 1
     public void initNextGeneration() {
+        updatePopulationFitnesses();
+        Collections.sort(population, comparator);
         Iterator<Chromosome> iter;
         List<Chromosome> list = new ArrayList<>();
         Chromosome choosen = null;
@@ -166,50 +176,174 @@ public class GATest {
         Phrase phrase = new Phrase();
 
         phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
         phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
         phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
         phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
         phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
         phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE*3));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
         phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
-        part.add(phrase);
+        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
 
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE*3));
+        part.add(phrase.copy());
+        phrase.empty();
+
+        Write.midi(part, "britain.mid");
+//        Score temp = new Score();
+//        Read.midi(temp, "britain.mid");
         return part;
-//    return temp.getPart(0);
     }
 
     public int[][] processPart(int[] scale, Part part) {
-        int size = 0;
         Phrase[] phraseArray = part.getPhraseArray();
-        for (int i = 0; i < phraseArray.length; i++) {
-            size += phraseArray[i].size();
-        }
-        int[][] frequences = new int[size][7];
+        int[][] frequences = new int[phraseArray.length][7];
         Note[] noteArray;
-        int indexPart = 0;
         for (int i = 0; i < phraseArray.length; i++) {
             noteArray = phraseArray[i].getNoteArray();
             for (int j = 0; j < noteArray.length; j++) {
                 int index = Arrays.binarySearch(scale, noteArray[j].getPitch() % 12);
                 if (-1 != index) {
-                    frequences[indexPart][index]++;
+                    frequences[i][index]++;
                 }
-                indexPart++;
             }
         }
         return frequences;
@@ -217,12 +351,18 @@ public class GATest {
 
     public Part processChromosome(Part melody, int tonic, Chromosome chromosome) {
         Part part = new Part();
-        Note[] notes = melody.getPhrase(0).getNoteArray();
+        Note[] notes = null;
+        Double duration = null;
         List<Double> durations = new LinkedList<>();
-        for (int i = 0; i < notes.length; i++) {
-            if (notes[i].getPitch() > 0) {
-                durations.add(notes[i].getRhythmValue());
+        for (int j = 0; j < melody.size(); j++) {
+            duration = 0d;
+            notes = melody.getPhrase(j).getNoteArray();
+            for (int i = 0; i < notes.length; i++) {
+                if (notes[i].getPitch() > 0) {
+                    duration += notes[i].getRhythmValue();
+                }
             }
+            durations.add(duration);
         }
 
         Phrase phrase = new Phrase();
@@ -232,7 +372,6 @@ public class GATest {
             chord = measure.getMeasure().clone();
             for (int j = 0; j < chord.length; j++) {
                 chord[j] += tonic;
-//                phrase.add(new Note(chord[j], Durations.EIGHTH_NOTE_TRIPLET));
             }
             phrase.addChord(chord, iter.next());
         }
