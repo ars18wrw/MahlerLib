@@ -1,7 +1,6 @@
 package ga2;
 
 import javafx.util.Pair;
-import jm.constants.Durations;
 import jm.constants.Pitches;
 import jm.constants.ProgramChanges;
 import jm.constants.Scales;
@@ -9,6 +8,7 @@ import jm.music.data.Note;
 import jm.music.data.Part;
 import jm.music.data.Phrase;
 import jm.music.data.Score;
+import jm.util.Read;
 import jm.util.Write;
 
 import java.util.*;
@@ -18,8 +18,8 @@ import java.util.*;
  */
 public class GATest {
     public static final int POPULATION_SIZE = 100;
-    public static final int NUMBER_OF_RUNS = 2000;
-    public static final int CATACLYSM_TIME = 40;
+    public static final int NUMBER_OF_RUNS = 1000;
+    public static final int CATACLYSM_TIME = 25;
     public static final int PRINT_LOG_TIME = 25;
 
     public static final double MUTATION_PERCENT = 0.2;
@@ -47,12 +47,12 @@ public class GATest {
     protected List<Chromosome> population = new ArrayList<>();
 
     public static void main(String[] args) {
-        new GATest().process();
+        new GATest().process(args[0], args[1]);
     }
 
-    public void process() {
+    public void process(String src, String dest) {
         Score score = new Score();
-        Part part = initPart();
+        Part part = initPart(src);
         part.setInstrument(ProgramChanges.VIOLA);
         score.add(part);
         int[][] frequences = processPart(Scales.MAJOR_SCALE, part);
@@ -81,7 +81,7 @@ public class GATest {
         Part accompaniment = processChromosome(part, Pitches.C4, best);
         score.add(accompaniment);
         score.setTempo(120);
-        Write.midi(score, "tutti.mid");
+        Write.midi(score, dest);
         best.updateFitness();
         System.out.println(best.getFitness() + " : " + best.toString());
     }
@@ -161,178 +161,181 @@ public class GATest {
         }
     }
 
-    public Part initPart() {
-//        Phrase resultPhrase = new Phrase();
-//        Score temp = new Score();
-//        Read.midi(temp, "C:\\Repo\\MahlerLib\\papageno.mid");
-//        Note[] notes = temp.getPart(0).getPhrase(0).getNoteArray();
-//        for (int i = 0; i < notes.length; i++) {
-//            if (notes[i].getPitch() > 0) {
-//                resultPhrase.addNote(notes[i]);
-//            }
-//        }
-//        Part result = new Part();
-//        result.add(resultPhrase);
-//        return result;
-        Part part = new Part();
+    public Part initPart(String src) {
+        Part result = new Part();
         Phrase phrase = new Phrase();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE*3));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE*3));
-        part.add(phrase.copy());
-        phrase.empty();
-
-        Write.midi(part, "britain.mid");
-//        Score temp = new Score();
-//        Read.midi(temp, "britain.mid");
-        return part;
+        Score temp = new Score();
+        Read.midi(temp, src);
+        Note[] notes = temp.getPart(0).getPhrase(0).getNoteArray();
+        for (int i = 0; i < notes.length; i++) {
+            if (notes[i].getPitch() > 0) {
+                phrase.addNote(notes[i]);
+            }
+            if (phrase.size() != 0) {
+                result.add(phrase.copy());
+            }
+            phrase.empty();
+        }
+        return result;
+//        Part part = new Part();
+//        Phrase phrase = new Phrase();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE*3));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.G5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.F5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.E5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.D5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.B4, Durations.QUARTER_NOTE));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        phrase.add(new Note(Pitches.C5, Durations.QUARTER_NOTE*3));
+//        part.add(phrase.copy());
+//        phrase.empty();
+//
+//        Write.midi(part, "britain.mid");
+////        Score temp = new Score();
+////        Read.midi(temp, "britain.mid");
+//        return part;
     }
 
     public int[][] processPart(int[] scale, Part part) {

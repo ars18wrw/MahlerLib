@@ -130,14 +130,14 @@ public final class MajorHarmonization {
     }
 
     public static void main(String[] args) {
-        new MajorHarmonization().process();
+        new MajorHarmonization().process(args[0], args[1]);
     }
 
-    public void process() {
+    public void process(String src, String dest) {
         List<Note> pitchesToHarmonize = new ArrayList<>();
 
         /* Read midi */
-        Read.midi(s, FOLDER + NAME + EXT);
+        Read.midi(s, src);
 
         Part part;
         for (int jj = 0; jj < 1 /* only the solo voice */; jj++) {
@@ -187,7 +187,7 @@ public final class MajorHarmonization {
         score.add(accompaniment);
         score.setTempo(60);
 
-        Write.midi(score, "Harmonization.mid");
+        Write.midi(score, dest);
     }
 
 
