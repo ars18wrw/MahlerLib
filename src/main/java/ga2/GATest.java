@@ -3,6 +3,7 @@ package ga2;
 import javafx.util.Pair;
 import jm.constants.Durations;
 import jm.constants.Pitches;
+import jm.constants.ProgramChanges;
 import jm.constants.Scales;
 import jm.music.data.Note;
 import jm.music.data.Part;
@@ -17,8 +18,8 @@ import java.util.*;
  */
 public class GATest {
     public static final int POPULATION_SIZE = 100;
-    public static final int NUMBER_OF_RUNS = 1000;
-    public static final int CATACLYSM_TIME = 25;
+    public static final int NUMBER_OF_RUNS = 2000;
+    public static final int CATACLYSM_TIME = 40;
     public static final int PRINT_LOG_TIME = 25;
 
     public static final double MUTATION_PERCENT = 0.2;
@@ -52,6 +53,7 @@ public class GATest {
     public void process() {
         Score score = new Score();
         Part part = initPart();
+        part.setInstrument(ProgramChanges.VIOLA);
         score.add(part);
         int[][] frequences = processPart(Scales.MAJOR_SCALE, part);
         Chromosome best = null;
@@ -78,7 +80,7 @@ public class GATest {
         best = population.iterator().next();
         Part accompaniment = processChromosome(part, Pitches.C4, best);
         score.add(accompaniment);
-        score.setTempo(60);
+        score.setTempo(120);
         Write.midi(score, "tutti.mid");
         best.updateFitness();
         System.out.println(best.getFitness() + " : " + best.toString());
